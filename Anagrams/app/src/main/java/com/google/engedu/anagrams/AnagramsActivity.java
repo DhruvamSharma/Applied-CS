@@ -16,9 +16,12 @@
 package com.google.engedu.anagrams;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -37,7 +40,6 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 
 
@@ -49,6 +51,7 @@ public class AnagramsActivity extends AppCompatActivity {
     private List<String> anagrams;
     private Context context;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +62,7 @@ public class AnagramsActivity extends AppCompatActivity {
         context = this;
         try {
             InputStream inputStream = assetManager.open("words.txt");
-            dictionary = new AnagramDictionary(context, new InputStreamReader(inputStream));
+            dictionary = new AnagramDictionary(inputStream);
         } catch (IOException e) {
             Toast toast = Toast.makeText(this, "Could not load dictionary", Toast.LENGTH_LONG);
             toast.show();
@@ -80,6 +83,31 @@ public class AnagramsActivity extends AppCompatActivity {
                 return handled;
             }
         });
+        buildDialogBox();
+    }
+
+    private void buildDialogBox(){
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(context, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(context);
+        }
+        builder.setTitle("Set Minimum Letter Level")
+                .setMessage("Select how many letter Anagrams you want to form at the first Level.")
+                .setPositiveButton("2", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        AnagramDictionary.setDefaultWordLength(2);
+
+                    }
+                })
+                .setNegativeButton("3", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        AnagramDictionary.setDefaultWordLength(3);
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     private void processWord(EditText editText) {
@@ -128,12 +156,15 @@ public class AnagramsActivity extends AppCompatActivity {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         EditText editText = (EditText) findViewById(R.id.editText);
         TextView resultView = (TextView) findViewById(R.id.resultView);
+
+
+
         if (currentWord == null) {
 
             currentWord = dictionary.pickGoodStarterWord();
             Log.v("word" , currentWord);
-            anagrams = dictionary.getAnagrams(currentWord);
-         
+            anagrams = dictionary.getAnagramsWithOneMoreLetter(currentWord);
+            //Toast.makeText(this,anagrams.toString(),Toast.LENGTH_LONG).show();
             gameStatus.setText(Html.fromHtml(String.format(START_MESSAGE, currentWord.toUpperCase(), currentWord)));
             fab.setImageResource(android.R.drawable.ic_menu_help);
             fab.hide();
