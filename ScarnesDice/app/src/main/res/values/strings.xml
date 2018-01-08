@@ -4,4 +4,6 @@
     <string name="button_roll">ROLL</string>
     <string name="button_hold">HOLD</string>
     <string name="button_reset">RESET</string>
+    <string name="text_turn_score">Current Turn Score : </string>
+    <string name="todo">TODO</string>
 </resources>
