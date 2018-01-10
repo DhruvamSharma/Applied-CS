@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,10 +27,11 @@ public class MainActivity extends AppCompatActivity {
     private Button hold;
     private Button reset;
     private Context context;
-    private int score;
+    private int score1;
     private int score2;
-    private int difficulty=5;
-    private int MAXIMUM_POINTS=50;
+    private int difficulty=20;
+    private int MAXIMUM_POINTS=100;
+    private Handler timeHandler;
     private static final String text_user_overall_score = "Your Score: ";
     private static final String text_computer_overall_score = " Computer's Score: ";
     private static final String text_hold = "It's other player's turn Now";
@@ -50,60 +52,66 @@ public class MainActivity extends AppCompatActivity {
         hold = findViewById(R.id.button2);
         reset = findViewById(R.id.button3);
         context = this;
-
+        timeHandler = new Handler();
     }
 
     public void roll(View view) {
-        score = (int) (Math.random()*5)+1;
+        score1 = (int) (Math.random()*5)+1;
         score2 = (int) (Math.random()*5)+1;
-        if(flag==1){
-            Log.v("computer_turn_score",String.valueOf(score));
+        if(flag == 0)
+        Log.v("user score1",String.valueOf(score1)+"  " + String.valueOf(score2));
+        else {
+            Log.v("computer score1",String.valueOf(score1)+"  " + String.valueOf(score2));
         }
 
-        if (score == 1 || score2 == 1) {
-            currentScore.setText(text_fail);
-            user_turn_score=0;
+         if(score1 == 1 && score2 == 1) {
+            if (flag == 1) {
+                computer_turn_score = 0;
+                computer_overall_score = 0;
+                finalStatements();
+                Toast.makeText(this,"Sorry, Computer's score has ben reduced to 0",Toast.LENGTH_SHORT).show();
+            } else {
+                user_turn_score = 0;
+                user_overall_score = 0;
+                finalStatements();
+                Toast.makeText(this,"Sorry, your score has ben reduced to 0",Toast.LENGTH_SHORT).show();
+                computerTurn();
+                finalStatements();
+            }
+
+        }
+        else if(score1 == 1 || score2 == 1){
             computer_turn_score=0;
-            if(flag==0) {
-                user_overall_score += user_turn_score;
-                Log.v("user", "user scored 1");
-            }
-            else{
-                computer_overall_score+=computer_turn_score;
-                Log.v("computer", "computer scored 1");
-            }
-
-            finalScore.setText(text_user_overall_score);
-            finalScore.append(String.valueOf(user_overall_score));
-            finalScore.append(text_computer_overall_score);
-            finalScore.append(String.valueOf(computer_overall_score));
-
-            if(flag==0)
-            computerTurn();
-
-        } else {
+            user_turn_score=0;
             currentScore.setText(text_turn);
-            if(flag==0) {
-                user_turn_score += score+score2;
-                currentScore.append(String.valueOf(user_turn_score));
-                Log.v("usesr_turn_score",String.valueOf(score+score2));
+            currentScore.append(String.valueOf(user_turn_score));
+
+            if (flag == 0) {
+
+                computerTurn();
+                //finalStatements();
+            }
+        }
+        else {
+            if (flag == 1){
+                computer_turn_score += score1 + score2;
             }
             else {
-                computer_turn_score += score+score2;
-                currentScore.append(String.valueOf(computer_turn_score));
-                //computer_overall_score+=computer_turn_score;
+                user_turn_score += score1 + score2;
             }
-
+        }
+        if (score1 ==0 || score2 == 0) {
+            score1 = 1;
+            score2 = 1;
         }
 
-        if(score==0||score2==0) {
-            score=1;
-            score2=1;
-        }
-        Drawable drawable = ContextCompat.getDrawable(context, drawableResources[score-1]);
+        Drawable drawable = ContextCompat.getDrawable(context, drawableResources[score1-1]);
         imageView.setImageDrawable(drawable);
         Drawable drawable2 = ContextCompat.getDrawable(context,drawableResources[score2-1]);
         imageView2.setImageDrawable(drawable2);
+        currentScore.setText(text_turn);
+        currentScore.append(String.valueOf(user_turn_score));
+
         if(user_overall_score>=MAXIMUM_POINTS) {
             Toast.makeText(this,"You Won",Toast.LENGTH_SHORT).show();
             reset(reset);
@@ -112,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this,"You Lost",Toast.LENGTH_SHORT).show();
             reset(reset);
         }
+
+
     }
 
     public void hold (View view) {
@@ -120,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 user_overall_score += user_turn_score;
             else {
                 computer_overall_score += computer_turn_score;
+                Toast.makeText(this,"Computer Decided to hold to these precious scores",Toast.LENGTH_SHORT).show();
                 Log.v("computer_overall_score", String.valueOf(computer_overall_score));
             }
             user_turn_score = 0;
@@ -138,6 +149,23 @@ public class MainActivity extends AppCompatActivity {
                 computerTurn();
 
 
+    }
+
+    private void finalStatements() {
+        if (score1 ==0 || score2 == 0) {
+            score1 = 1;
+            score2 = 1;
+        }
+        finalScore.setText(text_user_overall_score);
+        finalScore.append(String.valueOf(user_overall_score));
+        finalScore.append(text_computer_overall_score);
+        finalScore.append(String.valueOf(computer_overall_score));
+        Drawable drawable = ContextCompat.getDrawable(context, drawableResources[score1-1]);
+        imageView.setImageDrawable(drawable);
+        Drawable drawable2 = ContextCompat.getDrawable(context,drawableResources[score2-1]);
+        imageView2.setImageDrawable(drawable2);
+        currentScore.setText(text_turn);
+        currentScore.append(String.valueOf(user_turn_score));
     }
 
 
@@ -162,25 +190,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void computerTurn() {
-        int random;
+
         roll.setEnabled(false);
         hold.setEnabled(false);
         roll.setBackgroundColor(Color.parseColor("#ff00ff"));
         hold.setBackgroundColor(Color.parseColor("#ff00ff"));
         flag = 1;
-        score=0;
-        while(score != 1||score2 !=1) {
-            random = (int) (Math.random() * difficulty + 1);
-            if (computer_turn_score < random) {
-                    roll(roll);
-            } else {
-                hold(hold);
-                Log.v("computer_action", "hold!!");
+        score1 = 0;
+        score2 = 0;
+        //random = (int) (Math.random()*difficulty);
+        roll(roll);
 
-            }
+        if (score1 != 1 && score2 != 1) {
+            timeHandler.postDelayed(runnable , 1000);
+        }else {
+            setEnabled();
         }
 
 
+
+    }
+
+    private void setEnabled() {
         flag=0;
         roll.setEnabled(true);
         hold.setEnabled(true);
@@ -188,6 +219,27 @@ public class MainActivity extends AppCompatActivity {
         hold.setBackgroundColor(Color.parseColor("#b76a1c"));
         Log.v("tag..","computer_turn_over");
     }
+
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            int random = (int) (Math.random()*difficulty+1);
+            if (random >= score1 + score2 ) {
+                if (score1 != 1 && score2 != 1) {
+                    roll(roll);
+                    timeHandler.postDelayed(this, 1000);
+                }
+                else {
+                    setEnabled();
+                    timeHandler.removeCallbacks(this);
+                }
+            } else {
+                hold(hold);
+                setEnabled();
+                timeHandler.removeCallbacks(this);
+            }
+        }
+    };
 
 
 
