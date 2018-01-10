@@ -1,11 +1,14 @@
 package dell.scarnesdice;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String text_turn = "Current Turn Score : ";
     private static final String text_fail = "Sorry You rolled a 1. It's now other's turn";
     private static int flag=0;
+    private int[] checked;
     private int[] drawableResources = {R.drawable.dice1,R.drawable.dice2,R.drawable.dice3,R.drawable.dice4,R.drawable.dice5,R.drawable.dice6};
 
     @Override
@@ -53,6 +57,40 @@ public class MainActivity extends AppCompatActivity {
         reset = findViewById(R.id.button3);
         context = this;
         timeHandler = new Handler();
+        FloatingActionButton fab =  findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Click action
+                final String[] multiChoiceItems = {"DIfficult Mode","Increase Max Winning Score", "Default Level"};
+                checked = new int[3];
+                final boolean[] checkedItems = {false, false, false, false};
+                new AlertDialog.Builder(context)
+                        .setTitle("Select your preference")
+                        .setMultiChoiceItems(multiChoiceItems, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int index, boolean isChecked) {
+
+                                Log.d("MainActivity", "clicked item index is " + index);
+                                if (!isChecked) {
+                                    checked[index] = index;
+                                }else {
+
+                                    checked[index] = -1;
+                                }
+                            }
+                        })
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Log.d("MainActivity", "clicked item index is " + checked[0] + "  "+ checked[1]);
+                                setPreferences(checked);
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
     }
 
     public void roll(View view) {
@@ -193,8 +231,8 @@ public class MainActivity extends AppCompatActivity {
 
         roll.setEnabled(false);
         hold.setEnabled(false);
-        roll.setBackgroundColor(Color.parseColor("#ff00ff"));
-        hold.setBackgroundColor(Color.parseColor("#ff00ff"));
+        roll.setBackgroundColor(Color.parseColor("#d3d3d3"));
+        hold.setBackgroundColor(Color.parseColor("#d3d3d3"));
         flag = 1;
         score1 = 0;
         score2 = 0;
@@ -242,7 +280,23 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
+    public void setPreferences(int[] checked) {
+        if(checked[0] == -1) {
+            difficulty = 15;
+            MAXIMUM_POINTS = 50;
+            Toast.makeText(this,"Difficulty Increased",Toast.LENGTH_SHORT).show();
+        }
 
+        if(checked[1] == -1) {
+            MAXIMUM_POINTS = 150;
+            Toast.makeText(this, "MAXIMUMPOINTS INCREASED TO 150",Toast.LENGTH_SHORT).show();
+        }
+
+        if (checked[2] == -1) {
+            difficulty = 20;
+            MAXIMUM_POINTS = 100;
+        }
+    }
 
 
 }
