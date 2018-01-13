@@ -28,7 +28,7 @@ class Stack<T> {
             throw new EmptyStackException();
         }
         else {
-            tempNode = linkedList.getLast();
+            tempNode = linkedList.remove(linkedList.size()-1);
         }
         return (T)tempNode.getData();
     }
@@ -43,8 +43,9 @@ class Stack<T> {
             return null;
         }
         else {
-            
+            tempNode = linkedList.peekLast();
         }
+        return (T) tempNode.getData();
     }
 
 
