@@ -17,8 +17,8 @@ package com.google.engedu.wordstack;
 
 import android.content.res.AssetManager;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -57,10 +56,11 @@ public class MainActivity extends AppCompatActivity {
             while((line = in.readLine()) != null) {
                 String word = line.trim();
                 /**
-                 **
                  **  YOUR CODE GOES HERE
-                 **
                  **/
+                if (word.length() == WORD_LENGTH) {
+                    words.add(word);
+                }
             }
         } catch (IOException e) {
             Toast toast = Toast.makeText(this, "Could not load dictionary", Toast.LENGTH_LONG);
@@ -141,13 +141,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onStartGame(View view) {
-        TextView messageBox = (TextView) findViewById(R.id.message_box);
-        messageBox.setText("Game started");
+
         /**
          **
          **  YOUR CODE GOES HERE
          **
          **/
+
+        word1 = words.get((int)(Math.random()*(words.size())));
+        word2 = words.get((int)(Math.random()*(words.size())));
+        StringBuilder result = new StringBuilder();
+        // Logic of scrambling word goes here
+        for (int i = 0; i < word1.length(); i++) {
+            result.append(String.valueOf(word1.charAt(i))).append(String.valueOf(word2.charAt(i)));
+        }
+
+
+        TextView messageBox = (TextView) findViewById(R.id.message_box);
+        assert messageBox != null;
+        messageBox.setText(result);
+
         return true;
     }
 
