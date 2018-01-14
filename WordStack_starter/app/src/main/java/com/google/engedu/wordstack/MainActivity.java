@@ -15,6 +15,7 @@
 
 package com.google.engedu.wordstack;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -32,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,9 +41,12 @@ public class MainActivity extends AppCompatActivity {
     public static final int LIGHT_BLUE = Color.rgb(176, 200, 255);
     public static final int LIGHT_GREEN = Color.rgb(200, 255, 200);
     private ArrayList<String> words = new ArrayList<>();
-    private Random random = new Random();
     private StackedLayout stackedLayout;
     private String word1, word2;
+    private Context context;
+    LinearLayout word1LinearLayout = null;
+    LinearLayout word2LinearLayout = null;
+    Stack<LetterTile> placedTiles = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +72,17 @@ public class MainActivity extends AppCompatActivity {
         }
         LinearLayout verticalLayout = (LinearLayout) findViewById(R.id.vertical_layout);
         stackedLayout = new StackedLayout(this);
-        verticalLayout.addView(stackedLayout, 3);
+        assert verticalLayout != null;
 
-        View word1LinearLayout = findViewById(R.id.word1);
+        verticalLayout.addView(stackedLayout, 3);
+        placedTiles = new Stack<>();
+        word1LinearLayout = (LinearLayout) findViewById(R.id.word1);
         word1LinearLayout.setOnTouchListener(new TouchListener());
         //word1LinearLayout.setOnDragListener(new DragListener());
-        View word2LinearLayout = findViewById(R.id.word2);
+        word2LinearLayout = (LinearLayout) findViewById(R.id.word2);
         word2LinearLayout.setOnTouchListener(new TouchListener());
         //word2LinearLayout.setOnDragListener(new DragListener());
+        context = this;
     }
 
     private class TouchListener implements View.OnTouchListener {
@@ -85,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
             if (event.getAction() == MotionEvent.ACTION_DOWN && !stackedLayout.empty()) {
                 LetterTile tile = (LetterTile) stackedLayout.peek();
                 tile.moveToViewGroup((ViewGroup) v);
+                placedTiles.push(tile);
                 if (stackedLayout.empty()) {
                     TextView messageBox = (TextView) findViewById(R.id.message_box);
                     messageBox.setText(word1 + " " + word2);
@@ -147,20 +155,30 @@ public class MainActivity extends AppCompatActivity {
          **  YOUR CODE GOES HERE
          **
          **/
+        if ( !stackedLayout.empty()) {
+            stackedLayout.clear();
+            word1LinearLayout.removeAllViewsInLayout();
+            word2LinearLayout.removeAllViewsInLayout();
+        } else {
 
-        word1 = words.get((int)(Math.random()*(words.size())));
-        word2 = words.get((int)(Math.random()*(words.size())));
-        StringBuilder result = new StringBuilder();
-        // Logic of scrambling word goes here
-        for (int i = 0; i < word1.length(); i++) {
-            result.append(String.valueOf(word1.charAt(i))).append(String.valueOf(word2.charAt(i)));
+
+            word1 = words.get((int) (Math.random() * (words.size())));
+            word2 = words.get((int) (Math.random() * (words.size())));
+            StringBuilder result = new StringBuilder();
+            // Logic of scrambling word goes here
+            for (int i = 0; i < word1.length(); i++) {
+                result.append(String.valueOf(word1.charAt(i))).append(String.valueOf(word2.charAt(i)));
+            }
+            // printing to screen
+            TextView messageBox = (TextView) findViewById(R.id.message_box);
+            assert messageBox != null;
+            messageBox.setText(result);
+            //adding to stackedLayout
+            String reverse = String.valueOf(result.reverse());
+            for (int i = 0; i < result.length(); i++) {
+                stackedLayout.push(new LetterTile(context, reverse.charAt(i)));
+            }
         }
-
-
-        TextView messageBox = (TextView) findViewById(R.id.message_box);
-        assert messageBox != null;
-        messageBox.setText(result);
-
         return true;
     }
 
@@ -168,8 +186,13 @@ public class MainActivity extends AppCompatActivity {
         /**
          **
          **  YOUR CODE GOES HERE
-         **
+         **  Also check for filled stack (placedTiles)
          **/
+        if (!stackedLayout.empty()) {
+            LetterTile tile = (LetterTile) placedTiles.pop();
+            tile.moveToViewGroup(stackedLayout);
+        }
+
         return true;
     }
 }

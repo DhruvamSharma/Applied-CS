@@ -19,6 +19,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 public class StackedLayout extends LinearLayout {
@@ -35,6 +36,12 @@ public class StackedLayout extends LinearLayout {
          **  YOUR CODE GOES HERE
          **
          **/
+
+        if( !empty() )
+            removeView(peek());
+            tiles.push(tile);
+            addView(tile);
+
     }
 
     public View pop() {
@@ -44,6 +51,13 @@ public class StackedLayout extends LinearLayout {
          **  YOUR CODE GOES HERE
          **
          **/
+
+        popped = tiles.pop();
+        removeView(popped);
+        try {
+            addView(peek());
+        } catch (EmptyStackException ignored) {}
+
         return popped;
     }
 
@@ -61,5 +75,6 @@ public class StackedLayout extends LinearLayout {
          **  YOUR CODE GOES HERE
          **
          **/
+        tiles.clear();
     }
 }
