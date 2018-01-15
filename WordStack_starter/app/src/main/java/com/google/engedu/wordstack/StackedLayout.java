@@ -75,6 +75,9 @@ public class StackedLayout extends LinearLayout {
          **  YOUR CODE GOES HERE
          **
          **/
+        if( !empty() )
+            removeView(peek());
         tiles.clear();
+
     }
 }

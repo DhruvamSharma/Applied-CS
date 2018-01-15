@@ -33,20 +33,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
+import java.util.HashSet;
 import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int WORD_LENGTH = 5;
+    private int WORD_LENGTH = 3;
     public static final int LIGHT_BLUE = Color.rgb(176, 200, 255);
     public static final int LIGHT_GREEN = Color.rgb(200, 255, 200);
     private ArrayList<String> words = new ArrayList<>();
+    private HashSet <String> wordSet = new HashSet<>();
     private StackedLayout stackedLayout;
     private String word1, word2;
     private Context context;
     LinearLayout word1LinearLayout = null;
     LinearLayout word2LinearLayout = null;
-    Stack<LetterTile> placedTiles = null;
+    private static Stack<LetterTile> placedTiles = null;
+    private StringBuilder answer1 = new StringBuilder();
+    private StringBuilder answer2 = new StringBuilder();
+    private boolean hasStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     words.add(word);
                 }
             }
+            wordSet.addAll(words);
         } catch (IOException e) {
             Toast toast = Toast.makeText(this, "Could not load dictionary", Toast.LENGTH_LONG);
             toast.show();
@@ -75,13 +82,14 @@ public class MainActivity extends AppCompatActivity {
         assert verticalLayout != null;
 
         verticalLayout.addView(stackedLayout, 3);
+        stackedLayout.setOnDragListener(new DragListener());
         placedTiles = new Stack<>();
         word1LinearLayout = (LinearLayout) findViewById(R.id.word1);
-        word1LinearLayout.setOnTouchListener(new TouchListener());
-        //word1LinearLayout.setOnDragListener(new DragListener());
+        //word1LinearLayout.setOnTouchListener(new TouchListener());
+        word1LinearLayout.setOnDragListener(new DragListener());
         word2LinearLayout = (LinearLayout) findViewById(R.id.word2);
-        word2LinearLayout.setOnTouchListener(new TouchListener());
-        //word2LinearLayout.setOnDragListener(new DragListener());
+        //word2LinearLayout.setOnTouchListener(new TouchListener());
+        word2LinearLayout.setOnDragListener(new DragListener());
         context = this;
     }
 
@@ -112,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
         public boolean onDrag(View v, DragEvent event) {
             int action = event.getAction();
-            switch (event.getAction()) {
+            switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
                     v.setBackgroundColor(LIGHT_BLUE);
                     v.invalidate();
@@ -132,10 +140,26 @@ public class MainActivity extends AppCompatActivity {
                 case DragEvent.ACTION_DROP:
                     // Dropped, reassign Tile to the target Layout
                     LetterTile tile = (LetterTile) event.getLocalState();
+                    if (v instanceof StackedLayout) {
+
+                        modifiedUndo(tile);
+                    }else {
+
                     tile.moveToViewGroup((ViewGroup) v);
+                    placedTiles.push(tile);
                     if (stackedLayout.empty()) {
-                        TextView messageBox = (TextView) findViewById(R.id.message_box);
-                        messageBox.setText(word1 + " " + word2);
+                        for (int i = 0; i < word1LinearLayout.getChildCount(); i++) {
+                            answer1.append(word1LinearLayout.getChildAt(i).toString());
+                            answer2.append(word2LinearLayout.getChildAt(i).toString());
+                        }
+                        if (wordSet.contains(answer1.toString()) && wordSet.contains(answer2.toString())) {
+                            TextView messageBox = (TextView) findViewById(R.id.message_box);
+                            messageBox.setText(word1 + " " + word2);
+
+                        }
+                        //Toast.makeText(context,answer1,Toast.LENGTH_SHORT).show();
+
+                    }
                     }
                     /**
                      **
@@ -155,11 +179,16 @@ public class MainActivity extends AppCompatActivity {
          **  YOUR CODE GOES HERE
          **
          **/
-        if ( !stackedLayout.empty()) {
+            if (hasStarted && WORD_LENGTH < 8) {
+                WORD_LENGTH++;
+            }else
+                WORD_LENGTH = 3;
+
+
             stackedLayout.clear();
-            word1LinearLayout.removeAllViewsInLayout();
-            word2LinearLayout.removeAllViewsInLayout();
-        } else {
+            word2LinearLayout.removeAllViews();
+            word1LinearLayout.removeAllViews();
+
 
 
             word1 = words.get((int) (Math.random() * (words.size())));
@@ -178,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < result.length(); i++) {
                 stackedLayout.push(new LetterTile(context, reverse.charAt(i)));
             }
-        }
+            hasStarted = true;
         return true;
     }
 
@@ -188,11 +217,46 @@ public class MainActivity extends AppCompatActivity {
          **  YOUR CODE GOES HERE
          **  Also check for filled stack (placedTiles)
          **/
-        if (!stackedLayout.empty()) {
-            LetterTile tile = (LetterTile) placedTiles.pop();
+
+        LetterTile tile =null;
+        try {
+            tile = placedTiles.pop();
+
             tile.moveToViewGroup(stackedLayout);
-        }
+        }catch (EmptyStackException ignored) {}
+
+
 
         return true;
     }
+
+    private void modifiedUndo(LetterTile lastTile) {
+
+
+        LetterTile tile1 =null ,tile2 =null;
+
+            tile1 = placedTiles.pop();
+            Toast.makeText(context,lastTile.toString(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,tile1.toString(),Toast.LENGTH_SHORT).show();
+            if (tile1 == lastTile) {
+                tile1.moveToViewGroup(stackedLayout);
+            } else {
+                tile2 = placedTiles.pop();
+                if (tile2 == lastTile) {
+                    tile2.moveToViewGroup(stackedLayout);
+                    placedTiles.push(tile1);
+                }
+            }
+    }
+
+    public static LetterTile[] getLastTile() {
+        if (placedTiles.size() == 0){
+            return new LetterTile[]{};
+        }
+        if (placedTiles.size() == 1) {
+            return new LetterTile[] {placedTiles.pop()};
+        }
+        return new LetterTile[]{placedTiles.pop(), placedTiles.pop()};
+    }
+
 }
