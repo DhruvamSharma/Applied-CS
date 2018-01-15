@@ -20,6 +20,7 @@ import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,6 +35,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
 
@@ -47,12 +49,13 @@ public class MainActivity extends AppCompatActivity {
     private StackedLayout stackedLayout;
     private String word1, word2;
     private Context context;
-    LinearLayout word1LinearLayout = null;
-    LinearLayout word2LinearLayout = null;
+    static LinearLayout word1LinearLayout = null;
+    static LinearLayout word2LinearLayout = null;
     private static Stack<LetterTile> placedTiles = null;
     private StringBuilder answer1 = new StringBuilder();
     private StringBuilder answer2 = new StringBuilder();
     private boolean hasStarted = false;
+    private HashMap<Integer,ArrayList<String>> wordMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +71,23 @@ public class MainActivity extends AppCompatActivity {
                 /**
                  **  YOUR CODE GOES HERE
                  **/
-                if (word.length() == WORD_LENGTH) {
+                int  wordLength = word.length();
+                wordSet.add(word);
+                if (wordLength == WORD_LENGTH) {
                     words.add(word);
                 }
+                if (wordMap.containsKey(wordLength)) {
+                    wordMap.get(wordLength).add(word);
+
+                }else {
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    arrayList.add(word);
+                    wordMap.put(wordLength,arrayList);
+                }
+
+
             }
-            wordSet.addAll(words);
+
         } catch (IOException e) {
             Toast toast = Toast.makeText(this, "Could not load dictionary", Toast.LENGTH_LONG);
             toast.show();
@@ -82,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         assert verticalLayout != null;
 
         verticalLayout.addView(stackedLayout, 3);
-        stackedLayout.setOnDragListener(new DragListener());
+        //stackedLayout.setOnDragListener(new DragListener());
         placedTiles = new Stack<>();
         word1LinearLayout = (LinearLayout) findViewById(R.id.word1);
         //word1LinearLayout.setOnTouchListener(new TouchListener());
@@ -140,13 +155,11 @@ public class MainActivity extends AppCompatActivity {
                 case DragEvent.ACTION_DROP:
                     // Dropped, reassign Tile to the target Layout
                     LetterTile tile = (LetterTile) event.getLocalState();
-                    if (v instanceof StackedLayout) {
 
-                        modifiedUndo(tile);
-                    }else {
 
                     tile.moveToViewGroup((ViewGroup) v);
                     placedTiles.push(tile);
+                        Log.v("ERROR", "............");
                     if (stackedLayout.empty()) {
                         for (int i = 0; i < word1LinearLayout.getChildCount(); i++) {
                             answer1.append(word1LinearLayout.getChildAt(i).toString());
@@ -155,12 +168,14 @@ public class MainActivity extends AppCompatActivity {
                         if (wordSet.contains(answer1.toString()) && wordSet.contains(answer2.toString())) {
                             TextView messageBox = (TextView) findViewById(R.id.message_box);
                             messageBox.setText(word1 + " " + word2);
+                            answer1.setLength(0);
+                            answer2.setLength(0);
 
                         }
                         //Toast.makeText(context,answer1,Toast.LENGTH_SHORT).show();
 
                     }
-                    }
+
                     /**
                      **
                      **  YOUR CODE GOES HERE
@@ -179,20 +194,19 @@ public class MainActivity extends AppCompatActivity {
          **  YOUR CODE GOES HERE
          **
          **/
-            if (hasStarted && WORD_LENGTH < 8) {
-                WORD_LENGTH++;
-            }else
-                WORD_LENGTH = 3;
 
+            if (WORD_LENGTH >7) {
+                WORD_LENGTH = 3;
+            }
 
             stackedLayout.clear();
             word2LinearLayout.removeAllViews();
             word1LinearLayout.removeAllViews();
 
 
-
-            word1 = words.get((int) (Math.random() * (words.size())));
-            word2 = words.get((int) (Math.random() * (words.size())));
+            ArrayList<String> arrayList = wordMap.get(WORD_LENGTH);
+            word1 = arrayList.get((int) (Math.random() * (arrayList.size())));
+            word2 = arrayList.get((int) (Math.random() * (arrayList.size())));
             StringBuilder result = new StringBuilder();
             // Logic of scrambling word goes here
             for (int i = 0; i < word1.length(); i++) {
@@ -207,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < result.length(); i++) {
                 stackedLayout.push(new LetterTile(context, reverse.charAt(i)));
             }
-            hasStarted = true;
+            WORD_LENGTH++;
         return true;
     }
 
@@ -230,33 +244,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void modifiedUndo(LetterTile lastTile) {
 
-
-        LetterTile tile1 =null ,tile2 =null;
-
-            tile1 = placedTiles.pop();
-            Toast.makeText(context,lastTile.toString(),Toast.LENGTH_SHORT).show();
-            Toast.makeText(context,tile1.toString(),Toast.LENGTH_SHORT).show();
-            if (tile1 == lastTile) {
-                tile1.moveToViewGroup(stackedLayout);
-            } else {
-                tile2 = placedTiles.pop();
-                if (tile2 == lastTile) {
-                    tile2.moveToViewGroup(stackedLayout);
-                    placedTiles.push(tile1);
-                }
-            }
-    }
-
-    public static LetterTile[] getLastTile() {
-        if (placedTiles.size() == 0){
-            return new LetterTile[]{};
-        }
-        if (placedTiles.size() == 1) {
-            return new LetterTile[] {placedTiles.pop()};
-        }
-        return new LetterTile[]{placedTiles.pop(), placedTiles.pop()};
-    }
 
 }

@@ -47,7 +47,7 @@ public class LetterTile extends android.support.v7.widget.AppCompatTextView {
             StackedLayout owner = (StackedLayout) parent;
             owner.pop();
             targetView.addView(this);
-            //freeze();
+            freeze();
             setVisibility(View.VISIBLE);
         } else {
             ViewGroup owner = (ViewGroup) parent;
@@ -73,17 +73,7 @@ public class LetterTile extends android.support.v7.widget.AppCompatTextView {
          **  YOUR CODE GOES HERE
          **
          **/
-        LetterTile[] temp = MainActivity.getLastTile();
-        if(temp.length == 0)
-        {
 
-        }
-        else if (temp.length == 1)
-        temp[0].unfreeze();
-        else {
-            temp[0].unfreeze();
-            temp[1].unfreeze();
-        }
 
         if (!frozen && motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
             return startDrag(ClipData.newPlainText("",""), new View.DragShadowBuilder(this), this, 0);
