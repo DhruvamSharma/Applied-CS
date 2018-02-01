@@ -3,11 +3,13 @@ public class SinglyLinkedLIstTestDrive {
         SinglyLinkedList<String> sList = new SinglyLinkedList<String>();
         sList.add("Hello");
         sList.printAll();
-        sList.add("bye");
+        sList.add("bye1");
+        sList.printAll();
+        sList.add("bye2");
         sList.printAll();
         sList.remove("Hello");
         sList.printAll();
-        sList.remove("bye");
+        sList.remove("bye1");
         sList.printAll();
         System.out.print(sList.getCount());
     }

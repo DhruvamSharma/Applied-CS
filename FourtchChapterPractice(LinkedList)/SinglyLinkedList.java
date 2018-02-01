@@ -37,10 +37,15 @@ class SinglyLinkedList<E> {
         int pointerCount = 0;
         if (root == null) {
             return false;
-        } else if ( count == 1 && tempNode.getInfo() == info) {
-            root = null;
-            count--;
-            return true;
+        } else if ( count == 1) {
+            if (tempNode.getInfo() == info) {
+                root = null;
+                count--;
+                return true;
+            } else {
+                return false;
+            }
+            
         } else {
             
             while (tempNode.getInfo() != (info)) {
@@ -54,7 +59,7 @@ class SinglyLinkedList<E> {
             
             if (tempNode.getInfo() == info) {
                 if (tempNode == root) {
-                    root.setNext(tempNode.getNext().getNext());
+                    root.setNext(root.getNext().getNext());
                     count--;
                     return true;
                 }
