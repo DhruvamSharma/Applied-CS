@@ -34,41 +34,33 @@ class SinglyLinkedList<E> {
     public boolean remove(E info) {
         if (root == null) {
             return false;
-        }
-       
-        
-        else if ( count == 1) {
+        } else if ( count == 1) {
             root = null;
             count--;
             return true;
         } else {
             Node<E> tempNode = root;
-            ArrayList<Node<E>> tempArray = new ArrayList<Node<E>>();
-            
-            while(tempNode.getInfo() != info) {
-                
-                if (tempArray.isEmpty())
-                tempArray.add(0, tempNode);
-                else {
-                    tempArray.clear();
-                    tempArray.add(0, tempNode);
-                }
+            Node<E> previousNode = root;
+            int pointerCount = 0;
+            while (tempNode.getInfo() != (info)) {
                 tempNode = tempNode.getNext();
-                
-            
-            } 
-            if (tempNode.getInfo() == info ) {
-                
-                tempArray.get(0).setNext(tempNode.getNext());
+                if (pointerCount%2 != 0) {
+                    previousNode = previousNode.getNext();
+                    
+                }
+                pointerCount++;
+            }
+            if (tempNode.getInfo() == info) {
+                previousNode.setNext(tempNode.getNext());
                 count--;
                 return true;
-            } else {
-                return false;
             }
+            
+            
         }
 
         
-        
+      return false;  
     }
 
     public void removeAt(int position) {
