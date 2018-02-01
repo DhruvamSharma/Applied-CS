@@ -60,7 +60,7 @@ class SinglyLinkedList<E> {
             if (tempNode.getInfo() == info) {
                 if (tempNode == root) {
                     System.out.println(tempNode.getInfo());
-                    root.setNext(root.getNext());
+                    root=(root.getNext());
                     count--;
                     return true;
                 }
