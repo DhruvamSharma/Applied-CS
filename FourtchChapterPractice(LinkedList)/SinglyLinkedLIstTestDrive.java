@@ -9,7 +9,7 @@ public class SinglyLinkedLIstTestDrive {
         sList.printAll();
         sList.remove("Hello");
         sList.printAll();
-        sList.remove("bye1");
+        sList.remove("bye2");
         sList.printAll();
         System.out.print(sList.getCount());
     }
