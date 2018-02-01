@@ -32,16 +32,17 @@ class SinglyLinkedList<E> {
     }
 
     public boolean remove(E info) {
+        Node<E> tempNode = root;
+        Node<E> previousNode = root;
+        int pointerCount = 0;
         if (root == null) {
             return false;
-        } else if ( count == 1) {
+        } else if ( count == 1 && tempNode.getInfo() == info) {
             root = null;
             count--;
             return true;
         } else {
-            Node<E> tempNode = root;
-            Node<E> previousNode = root;
-            int pointerCount = 0;
+            
             while (tempNode.getInfo() != (info)) {
                 tempNode = tempNode.getNext();
                 if (pointerCount%2 != 0) {
@@ -50,7 +51,13 @@ class SinglyLinkedList<E> {
                 }
                 pointerCount++;
             }
+            
             if (tempNode.getInfo() == info) {
+                if (tempNode == root) {
+                    root.setNext(tempNode.getNext().getNext());
+                    count--;
+                    return true;
+                }
                 previousNode.setNext(tempNode.getNext());
                 count--;
                 return true;
