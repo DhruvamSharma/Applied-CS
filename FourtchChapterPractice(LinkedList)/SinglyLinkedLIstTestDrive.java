@@ -11,6 +11,9 @@ public class SinglyLinkedLIstTestDrive {
         sList.printAll();
         sList.remove("bye2");
         sList.printAll();
-        System.out.print(sList.getCount());
+        sList.remove("byejgjhgj3");
+        sList.printAll();
+        System.out.println(sList.getCount());
+        sList.printAll();
     }
 }
