@@ -25,14 +25,23 @@ class CircularDoublyLinkedList<E> {
             root = node;
             count++;
             return true;
-        }  else {
+        }  /*else if (count == 1) {
             Node<E> tempNode = root;
-            Node<E> iNode = root;
-            while (tempNode.getNext() != root) {
+            tempNode.setNext(node);
+            tempNode.setPrevious(node);
+            node.setNext(tempNode);
+            node.setPrevious(tempNode);
+            count++;
+            return true;
+
+        }*/ else {
+            Node<E> tempNode = root;
+            int counter = 0;
+            for (counter = 0;counter < getCount()-1 ; counter++) {
                 tempNode = tempNode.getNext();
             }
             tempNode.setNext(node);
-            iNode.setPrevious(node);
+            root.setPrevious(node);
             node.setNext(root);
             node.setPrevious(tempNode);
             count++;
@@ -40,6 +49,7 @@ class CircularDoublyLinkedList<E> {
         }
         
     }
+
 
     public boolean addNodeAtFirst(E info) {
         Node<E> node = new Node<E>(info);
@@ -50,13 +60,29 @@ class CircularDoublyLinkedList<E> {
             count++;
             return true;
         } else {
-            Node<E> tempNode = root;
+            Node<E> tmpref = root;
+            tmpref.getPrevious().setNext(node);
             
-
+            node.setNext(root);
+            node.setPrevious(tmpref.getPrevious());
+            tmpref.setPrevious(node);
             root = node;
-            node.setNext(tempNode);
-            node.setPrevious(root);
+            /*tempref.getPrevious().setNext(node);
+            tempref.setPrevious(node);
+            node.setNext(tempref);
+            while (tempref.getNext() != root)
+                tempref = tempref.getNext();
+            node.setPrevious(root.getPrevious());
+            root = node;
+            while (tmpref.getNext() != root)
+                tmpref = tmpref.getNext();
+            tmpref.setNext(node);
+            node.setNext(root);
+            node.setPrevious(tmpref);
+            root.setPrevious(node);
+            root = node;*/
             count++;
+            
             return true;
         }
         
@@ -75,15 +101,24 @@ class CircularDoublyLinkedList<E> {
             }
             
         } else {
-            while (tNode.getInfo() != info) {
+            int tmp=0;
+            while (tNode.getInfo() != info && tmp <= getCount()) {
+                tmp++;
                 tNode = tNode.getNext();
             }
 
             if (tNode.getInfo() == info) {
+                
+                
                 tNode.getPrevious().setNext(tNode.getNext()); 
                 tNode.getNext().setPrevious(tNode.getPrevious());
+        
                 count--;
-                System.out.println("no data found");
+                if(tNode == root)
+                {
+                    root = tNode.getNext();
+                }
+                System.out.println(tNode.getInfo());
                 return true;
             } else {
                 System.out.println("no data found");

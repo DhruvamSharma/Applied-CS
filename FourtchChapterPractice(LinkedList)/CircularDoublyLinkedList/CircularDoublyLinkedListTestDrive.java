@@ -8,11 +8,13 @@ class CircularDoublyLinkedListTestDrive {
         linkedList.printAllClockWise();
         linkedList.addNode("tata");
         linkedList.printAllClockWise();
+        linkedList.addNode("ciaio");
+        linkedList.printAllClockWise();
         linkedList.addNodeAtFirst("sayionara");
         linkedList.printAllClockWise();
         linkedList.addNodeAtFirst("ritvik");
         linkedList.printAllClockWise();
-        linkedList.remove("dcsdc");
+        linkedList.remove("ritvik");
         linkedList.printAllClockWise();
         /*linkedList.remove("sayionara");
         linkedList.printAllClockWise();*/
