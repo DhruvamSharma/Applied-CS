@@ -68,19 +68,25 @@ class CircularDoublyLinkedList<E> {
         if (root == null) {
             return false;
         } else if (count == 1 ) {
-            if (tNode.getInfo() == info)
-            root = null;
-            count --;
-            return true;
+            if (tNode.getInfo() == info) {
+                root = null;
+                count --;
+                return true;
+            }
+            
         } else {
             while (tNode.getInfo() != info) {
                 tNode = tNode.getNext();
             }
 
             if (tNode.getInfo() == info) {
-                tNode.getPrevious().setNext(root); 
+                tNode.getPrevious().setNext(tNode.getNext()); 
+                tNode.getNext().setPrevious(tNode.getPrevious());
                 count--;
+                System.out.println("no data found");
                 return true;
+            } else {
+                System.out.println("no data found");
             }
         }
 
