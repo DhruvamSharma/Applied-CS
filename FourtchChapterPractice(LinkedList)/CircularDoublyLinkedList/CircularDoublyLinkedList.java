@@ -61,6 +61,7 @@ class CircularDoublyLinkedList<E> {
             return true;
         } else {
             Node<E> tmpref = root;
+            // data to be added
             tmpref.getPrevious().setNext(node);
             
             node.setNext(root);
