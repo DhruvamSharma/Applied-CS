@@ -26,8 +26,9 @@ public class CircularLinkedList implements Iterable<Point> {
 
     private Node head;
     private Node last;
+    private int count;
 
-    public void insertBeginning(Point p) {
+    void insertBeginning(Point p) {
         Node node = new Node(p);
         /**
          **
@@ -40,6 +41,7 @@ public class CircularLinkedList implements Iterable<Point> {
             node.setNext(node);
             head = node;
             last = node;
+            count++;
         }
         else {
             node.setNext(head);
@@ -47,6 +49,7 @@ public class CircularLinkedList implements Iterable<Point> {
             head.setPrev(node);
             last.setNext(node);
             head = node;
+            count++;
         }
 
     }
@@ -81,8 +84,9 @@ public class CircularLinkedList implements Iterable<Point> {
          **/
     }
 
-    public void reset() {
+    void reset() {
         head = null;
+        count = 0;
     }
 
     private class CircularLinkedListIterator implements Iterator<Point> {
